@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_playlist"
+        android:title="Playlist"
+        android:icon="@drawable/ic_playlist" />
+    <item
+        android:id="@+id/nav_player"
+        android:title="Player"
+        android:icon="@drawable/ic_player" />
+    <item
+        android:id="@+id/nav_online"
+        android:title="Online"
+        android:icon="@drawable/ic_online" />
+</menu>
