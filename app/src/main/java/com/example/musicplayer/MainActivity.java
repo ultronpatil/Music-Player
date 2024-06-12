@@ -22,6 +22,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+    private PlaylistFragment playlistFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Fragment fragment = null;
         int id = item.getItemId();
         if (id == R.id.nav_playlist) {
-            fragment = new PlaylistFragment();
+            if (playlistFragment == null) {
+                playlistFragment = new PlaylistFragment();
+            }
+            fragment = playlistFragment;
         } else if (id == R.id.nav_player) {
             fragment = new PlayerFragment();
         } else if (id == R.id.nav_online) {
@@ -95,7 +99,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         List<Song> songs = fetchSongsFromStorage();
 
         // Load PlaylistFragment and pass the songs as arguments
-        PlaylistFragment playlistFragment = new PlaylistFragment();
+        if (playlistFragment == null) {
+            playlistFragment = new PlaylistFragment();
+        }
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("songs", new ArrayList<>(songs));
         playlistFragment.setArguments(bundle);
