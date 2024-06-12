@@ -16,6 +16,7 @@ import java.util.List;
 public class PlaylistFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private SongAdapter adapter;
 
     public PlaylistFragment() {
         // Required empty public constructor
@@ -37,7 +38,15 @@ public class PlaylistFragment extends Fragment {
         List<Song> songs = getArguments().getParcelableArrayList("songs");
 
         // Create and set the adapter
-        SongAdapter adapter = new SongAdapter(songs);
+        adapter = new SongAdapter(getContext(), songs);
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (adapter != null) {
+            adapter.release();
+        }
     }
 }
