@@ -27,6 +27,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.songs = songs;
         this.context = context;
         this.mediaPlayer = new MediaPlayer();
+        this.mediaPlayer.setOnCompletionListener(mp -> playNextSong());
     }
 
     @NonNull
@@ -42,28 +43,25 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         Song song = songs.get(position);
         holder.songName.setText(song.getTitle());
 
-        if (playingPosition == position && !isPaused) {
-            holder.playPauseIcon.setImageResource(R.drawable.ic_play);
-        } else if (playingPosition == position && isPaused) {
-            holder.playPauseIcon.setImageResource(R.drawable.ic_pause);
+        if (playingPosition == position) {
+            if (mediaPlayer.isPlaying() && !isPaused) {
+                holder.playPauseIcon.setImageResource(R.drawable.ic_play);
+            } else if (isPaused) {
+                holder.playPauseIcon.setImageResource(R.drawable.ic_pause);
+            } else {
+                holder.playPauseIcon.setImageResource(R.drawable.ic_song_icon);
+            }
         } else {
             holder.playPauseIcon.setImageResource(R.drawable.ic_song_icon);
         }
 
         holder.itemView.setOnClickListener(v -> {
             if (mediaPlayer.isPlaying() && playingPosition == position && !isPaused) {
-                mediaPlayer.pause();
-                isPaused = true;
-                holder.playPauseIcon.setImageResource(R.drawable.ic_pause);
+                pauseSong();
             } else if (playingPosition == position && isPaused) {
-                mediaPlayer.start();
-                isPaused = false;
-                holder.playPauseIcon.setImageResource(R.drawable.ic_play);
+                resumeSong();
             } else {
                 playSong(song, position);
-                notifyItemChanged(playingPosition); // Update the previously played song icon
-                playingPosition = position;
-                holder.playPauseIcon.setImageResource(R.drawable.ic_play);
             }
         });
 
@@ -79,17 +77,38 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     private void playSong(Song song, int position) {
         try {
-            if (mediaPlayer.isPlaying() || isPaused) {
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-            }
+            mediaPlayer.reset();
             mediaPlayer.setDataSource(song.getData());
             mediaPlayer.prepare();
             mediaPlayer.start();
             isPaused = false;
+            playingPosition = position; // Update the playing position
+            notifyDataSetChanged(); // Refresh UI
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void pauseSong() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            isPaused = true;
+            notifyDataSetChanged(); // Refresh UI
+        }
+    }
+
+    private void resumeSong() {
+        if (!mediaPlayer.isPlaying()) {
+            mediaPlayer.start();
+            isPaused = false;
+            notifyDataSetChanged(); // Refresh UI
+        }
+    }
+
+    private void playNextSong() {
+        int nextPosition = (playingPosition + 1) % songs.size(); // Calculate the next position in the queue
+        playingPosition = nextPosition;
+        playSong(songs.get(nextPosition), nextPosition);
     }
 
     public void release() {
