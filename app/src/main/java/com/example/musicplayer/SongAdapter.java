@@ -1,5 +1,6 @@
 package com.example.musicplayer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.view.LayoutInflater;
@@ -19,7 +20,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private List<Song> songs;
     private Context context;
     private MediaPlayer mediaPlayer;
-    private int playingPosition = -1; // Position of the currently playing song
+    private int playingPosition = -1;
     private boolean isPaused = false;
 
     public SongAdapter(Context context, List<Song> songs) {
@@ -35,23 +36,34 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         return new SongViewHolder(view);
     }
 
+    @SuppressLint("RecyclerView")
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
         Song song = songs.get(position);
         holder.songName.setText(song.getTitle());
 
+        if (playingPosition == position && !isPaused) {
+            holder.playPauseIcon.setImageResource(R.drawable.ic_play);
+        } else if (playingPosition == position && isPaused) {
+            holder.playPauseIcon.setImageResource(R.drawable.ic_pause);
+        } else {
+            holder.playPauseIcon.setImageResource(R.drawable.ic_song_icon);
+        }
+
         holder.itemView.setOnClickListener(v -> {
             if (mediaPlayer.isPlaying() && playingPosition == position && !isPaused) {
-                // If the clicked item is already playing, pause it
                 mediaPlayer.pause();
                 isPaused = true;
+                holder.playPauseIcon.setImageResource(R.drawable.ic_pause);
             } else if (playingPosition == position && isPaused) {
-                // If the clicked item was paused, resume it
                 mediaPlayer.start();
                 isPaused = false;
+                holder.playPauseIcon.setImageResource(R.drawable.ic_play);
             } else {
-                // Play the new song
                 playSong(song, position);
+                notifyItemChanged(playingPosition); // Update the previously played song icon
+                playingPosition = position;
+                holder.playPauseIcon.setImageResource(R.drawable.ic_play);
             }
         });
 
@@ -74,7 +86,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             mediaPlayer.setDataSource(song.getData());
             mediaPlayer.prepare();
             mediaPlayer.start();
-            playingPosition = position;
             isPaused = false;
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,13 +100,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     }
 
     static class SongViewHolder extends RecyclerView.ViewHolder {
-        ImageView icon;
+        ImageView playPauseIcon;
         TextView songName;
         ImageView options;
 
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
-            icon = itemView.findViewById(R.id.icon);
+            playPauseIcon = itemView.findViewById(R.id.play_pause_icon);
             songName = itemView.findViewById(R.id.song_name);
             options = itemView.findViewById(R.id.options);
         }

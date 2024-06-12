@@ -1,16 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="16dp">
 
-    <!-- Icon or symbol on the left -->
+    <!-- Play or Pause icon -->
     <ImageView
-        android:id="@+id/icon"
+        android:id="@+id/play_pause_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="TODO"
         android:src="@drawable/ic_song_icon" />
 
     <!-- Song name in the middle -->
